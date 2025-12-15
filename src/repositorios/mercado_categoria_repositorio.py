@@ -1,22 +1,15 @@
 from src.banco_dados import conectar
+from sqlalchemy.orm import Session
+
+from src.database.models import Categoria
 
 
-def cadastrar(nome: str):
-    # Abrir a conexão com o banco de dados
-    conexao = conectar()
-    # Criando um cursor para poder executar comandos no bd
-    cursor = conexao.cursor()
-    # Definir qual comando será executado
-    sql = "INSERT INTO categorias (nome) VALUES (%s)"
-    dados = (nome,)
-
-    cursor.execute(sql, dados)
-
-    # Confirmar o comando (concretizar o comando de insert)
-    conexao.commit()
-
-    # Fechar a conexão com o banco de dados do cursor
-    cursor.close()
+def cadastrar(db: Session, nome: str):
+    categoria = Categoria(nome=nome)
+    db.add(categoria) # INSERT INTO categorias (nome) VALUES (%s)
+    db.commit() # Concretização do insert no banco
+    db.refresh(categoria) # Atribuir para a categoria o id que foi gerado no db
+    return categoria
 
 
 def editar(id: int, nome: str):

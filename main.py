@@ -1,11 +1,17 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 
 from classes import AlunoCalcularMedia, CategoriaCriar, CategoriaEditar, ProdutoCriar, ProdutoEditar
+from src.database.conexao import get_db
 from src.repositorios import mercado_categoria_repositorio, mercado_produto_repositorio
 
 from fastapi.middleware.cors import CORSMiddleware
 
+from sqlalchemy.orm import Session
+
 app = FastAPI()
+# pip install pymysql
+# pip freeze > requirements.txt
+
 
 
 app.add_middleware(
@@ -78,8 +84,8 @@ def listar_categorias():
 # Método POST
 # Body: {"nome": "Batatinha"}
 @app.post("/api/v1/categorias", tags=["Categorias"])
-def cadastrar_categoria(categoria: CategoriaCriar):
-    mercado_categoria_repositorio.cadastrar(categoria.nome)
+def cadastrar_categoria(categoria: CategoriaCriar, db: Session = Depends(get_db)):
+    mercado_categoria_repositorio.cadastrar(db, categoria.nome)
     return {
         "status": "ok"
     }
