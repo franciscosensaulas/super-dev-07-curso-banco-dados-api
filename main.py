@@ -160,8 +160,8 @@ def apagar_produto(id: int):
 
 # obter por id
 @app.get("/api/v1/produtos/{id}", tags=["Produtos"])
-def obter_produto_por_id(id: int):
-    produto = mercado_produto_repositorio.obter_por_id(id)
+def obter_produto_por_id(id: int, db: Session = Depends(get_db)):
+    produto = mercado_produto_repositorio.obter_por_id(db, id)
     if produto is None:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
     
