@@ -1,4 +1,3 @@
-from src.banco_dados import conectar
 from sqlalchemy.orm import Session
 
 from src.database.models import Categoria
@@ -12,74 +11,33 @@ def cadastrar(db: Session, nome: str):
     return categoria
 
 
-def editar(id: int, nome: str):
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-    
-    sql = "UPDATE categorias SET nome = %s WHERE id = %s"
-    dados = (nome, id)
-    cursor.execute(sql, dados)
-    
-    conexao.commit()
-
-    linhas_afetadas = cursor.rowcount
-
-    cursor.close()
-
-    conexao.close()
-    return linhas_afetadas
+def editar(db: Session, id: int, nome: str):
+    # Busca a categoria pelo id (retorna a primeira encontrada ou None)
+    categoria = db.query(Categoria).filter(Categoria.id == id).first()
+    # Senão encontrou a categoria
+    if not categoria:
+        return 0 # retornamos 0 indicando que nada foi alterado
+    categoria.nome = nome # Atualiza o nome do objeto em memória (SQLAlchemy detecta a mudança)
+    db.commit() # Persiste a alteração no banco
+    return 1 # Retorna 1 indicando sucesso na edição
 
 
-def apagar(id: int) -> int:
-    conexao = conectar()
-    cursor = conexao.cursor()
-    sql = "DELETE FROM categorias WHERE id = %s"
-    dados = (id,)
-    cursor.execute(sql, dados)
-    conexao.commit()
+def apagar(db: Session, id: int) -> int:
+    # Busca a categoria pelo id (retorna a primeira encontrada ou None)
+    categoria = db.query(Categoria).filter(Categoria.id == id).first()
+    # Senão encontrou a categoria
+    if not categoria:
+        return 0 # retornamos 0 indicando que nada foi alterado
+    # Marca o registro para remoção na sessão
+    db.delete(categoria)
+    db.commit() # Confirma a transação e remove a categoria do banco
+    return 1 # Retorna 1 indicando sucesso na edição
 
-    linhas_afetadas = cursor.rowcount
-
-    cursor.close()
-    conexao.close()
-    return linhas_afetadas
-
-def obter_todos():
-    conexao = conectar()
-
-    cursor = conexao.cursor()
-
-    cursor.execute("SELECT id, nome  FROM categorias")
-
-    registros = cursor.fetchall()
-
-    cursor.close()
-    conexao.close()
-    categorias = []
-
-    for registro in registros:
-        categoria = {
-            "id": registro[0],
-            "nome": registro[1]
-        }
-        categorias.append(categoria)
-
+def obter_todos(db: Session):
+    categorias = db.query(Categoria).all()
     return categorias
 
 
-def obter_por_id(id: int):
-    conexao = conectar()
-    cursor = conexao.cursor()
-    sql = "SELECT id, nome FROM categorias WHERE id = %s"
-    dados = (id,)
-    cursor.execute(sql, dados)
-
-    registro = cursor.fetchone()
-    if not registro:
-        return None
-
-    return {
-        "id": registro[0],
-        "nome": registro[1]
-    }
+def obter_por_id(db: Session, id: int):
+    categoria = db.query(Categoria).filter(Categoria.id == id).first()
+    return categoria

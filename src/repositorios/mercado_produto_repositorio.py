@@ -1,5 +1,9 @@
 from src.banco_dados import conectar
 
+from sqlalchemy.orm import Session
+
+from src.database.models import Produto
+
 
 def cadastrar(nome: str, id_categoria: int):
     conexao = conectar()
@@ -37,29 +41,8 @@ def apagar(id: int):
     return linhas_afetadas
 
 
-def obter_todos():
-    conexao = conectar()
-    cursor = conexao.cursor()
-    sql = """select
-	produtos.id,
-	produtos.nome,
-	categorias.id,
-	categorias.nome
-	from produtos
-	inner join categorias on (produtos.id_categoria = categorias.id)"""
-    cursor.execute(sql)
-    registros = cursor.fetchall()
-    produtos = []
-    for registro in registros:
-        produto = {
-            "id": registro[0],
-            "nome": registro[1],
-            "categoria": {
-                "id": registro[2],
-                "nome": registro[3]
-            }
-        }
-        produtos.append(produto)
+def obter_todos(db: Session):
+    produtos = db.query(Produto).all()
     return produtos
 
 

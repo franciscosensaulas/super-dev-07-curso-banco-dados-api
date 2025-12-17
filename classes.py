@@ -1,3 +1,4 @@
+from datetime import date
 from pydantic import BaseModel
 
 
@@ -24,3 +25,15 @@ class ProdutoCriar(BaseModel):
 class ProdutoEditar(BaseModel):
     nome: str
     id_categoria: int
+
+
+class ClienteCriar(BaseModel):
+    nome: str
+    cpf: str
+    data_nascimento: date
+    limite: float
+
+
+class ClienteEditar(BaseModel):
+    data_nascimento: date
+    limite: float

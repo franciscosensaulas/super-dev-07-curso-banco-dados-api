@@ -29,3 +29,13 @@ insert into produtos (nome, id_categoria) values ('Toddy', 3);
 
 
 select * from produtos;
+
+
+
+CREATE TABLE clientes(
+	id INT PRIMARY KEY auto_increment,
+	nome VARCHAR(50) NOT NULL,
+	cpf VARCHAR(14) NOT NULL,
+	data_nascimento DATE,
+	limite DOUBLE
+);
